@@ -1,6 +1,9 @@
+let page = 1;
+
 function getUsers() {
     document.getElementById('cardHeader').innerHTML = '<h4>Listado de Usuarios</h4>';
-    fetch("https://reqres.in/api/users?page=1", {
+    
+    fetch(`https://reqres.in/api/users?page=${page}`, {
         method: "GET",
         headers: {
             "Content-type": "application/json",
@@ -44,10 +47,48 @@ function getUsers() {
             </table>
             `;
             document.getElementById('info').innerHTML = listUser;
+
+            
+            showPagination(response.body.page, response.body.total_pages);
         } else {
             document.getElementById('info').innerHTML = '<h3>No se encontraron Usuarios</h3>';
         }
     });
+}
+
+function showPagination(currentPage, totalPages) {
+    let pagination = `
+    <nav aria-label="Page navigation">
+        <ul class="pagination pagination-sm">
+            <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                <a class="page-link" href="#" onclick="changePage(${currentPage - 1})">Previous</a>
+            </li>
+    `;
+    
+    
+    for (let i = 1; i <= totalPages; i++) {
+        pagination += `
+            <li class="page-item ${i === currentPage ? 'active' : ''}">
+                <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
+            </li>
+        `;
+    }
+    
+    pagination += `
+            <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                <a class="page-link" href="#" onclick="changePage(${currentPage + 1})">Next</a>
+            </li>
+        </ul>
+    </nav>
+    `;
+    
+    document.getElementById('pagination').innerHTML = pagination;
+}
+
+
+function changePage(newPage) {
+    page = newPage;
+    getUsers();
 }
 
 function showInfoUser(userId) {
@@ -82,7 +123,7 @@ function showModalUser(user) {
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <div class="card" style="width: 18rem;">
+                        <div class="card mx-auto" style="width: 18rem;">
                             <img src="${user.avatar}" class="card-img-top" alt="Avatar user">
                             <div class="card-body">
                                 <h5 class="card-title">User Info</h5>
@@ -100,8 +141,8 @@ function showModalUser(user) {
         </div>
     `;
     document.getElementById('showModal').innerHTML = modalUser;
-
-    // Mostrar el modal con Bootstrap 5
+    
     const modal = new bootstrap.Modal(document.getElementById('ModalUser'));
     modal.show();
 }
+
